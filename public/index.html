@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Tap - Browse & Book Movie Tickets Online</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/movies.css">
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span></span>
+        </a>
+        
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Movies</a>
+            <a href="/#catalog-section" class="nav-link">Theatres</a>
+        </div>
+
+        <div id="nav-user-area" class="nav-user">
+            <a href="/login.html" class="nav-link">Sign In</a>
+            <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
+        </div>
+    </header>
+
+    <main style="padding: 0 1.5rem;">
+        <!-- Featured Movie Hero Showcase -->
+        <section class="movie-hero-banner" id="featured-hero">
+            <div class="hero-banner-bg" id="hero-banner-bg"></div>
+            <div class="hero-banner-overlay">
+                <div class="hero-banner-content">
+                    <div class="hero-tag">🔥 Trending Now</div>
+                    <h1 class="hero-banner-title" id="hero-title">Discover Top Movies</h1>
+                    <div class="hero-banner-meta" id="hero-meta">
+                        <span>⭐ Top Rated</span>
+                        <span>•</span>
+                        <span>Dolby Atmos</span>
+                        <span>•</span>
+                        <span>IMAX Laser</span>
+                    </div>
+                    <p class="hero-banner-desc" id="hero-desc">
+                        Explore showtimes at the best theatres near you and lock your favorite seats instantly with simulated fast checkout.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="#catalog-section" id="hero-book-btn" class="btn btn-primary">
+                            🎟️ Book Tickets
+                        </a>
+                        <button type="button" id="hero-trailer-btn" class="btn btn-secondary">
+                            ▶ Watch Trailer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search & Filter Controls (FR-4, FR-5) -->
+        <section class="catalog-controls" id="catalog-section">
+            <div class="controls-top">
+                <!-- Status Switcher Tabs -->
+                <div class="tab-group" role="tablist">
+                    <button type="button" class="tab-btn active" data-status="now_showing" id="tab-now-showing">
+                        <span>Now Showing</span>
+                        <span class="tab-count" id="count-now-showing">9</span>
+                    </button>
+                    <button type="button" class="tab-btn" data-status="upcoming" id="tab-upcoming">
+                        <span>Upcoming</span>
+                        <span class="tab-count" id="count-upcoming">3</span>
+                    </button>
+                    <button type="button" class="tab-btn" data-status="all" id="tab-all">
+                        <span>All Movies</span>
+                    </button>
+                </div>
+
+                <!-- Live Search Bar (FR-5) -->
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        class="search-input" 
+                        placeholder="Search movies by title, cast or director..."
+                        autocomplete="off"
+                    >
+                    <button type="button" id="clear-search-btn" class="clear-search-btn" title="Clear Search">✕</button>
+                </div>
+            </div>
+
+            <!-- Filters: Language, Genre, Date (FR-5) -->
+            <div class="filter-row">
+                <!-- Language Filter -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="language-filter" class="filter-label">🗣️ Language:</label>
+                    <select id="language-filter" class="filter-select">
+                        <option value="all">All Languages</option>
+                    </select>
+                </div>
+
+                <!-- Genre Filter -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="genre-filter" class="filter-label">🎭 Genre:</label>
+                    <select id="genre-filter" class="filter-select">
+                        <option value="all">All Genres</option>
+                    </select>
+                </div>
+
+                <!-- Date Filter Chips -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 280px;">
+                    <span class="filter-label">📅 Date:</span>
+                    <div class="date-chip-group" id="date-chips">
+                        <button type="button" class="date-chip active" data-date="">All Dates</button>
+                    </div>
+                </div>
+
+                <!-- Reset Filters -->
+                <button type="button" id="reset-filters-btn" class="reset-filters-btn">Reset Filters</button>
+            </div>
+        </section>
+
+        <!-- Movie Catalog Grid (FR-4) -->
+        <section class="movie-grid" id="movies-grid">
+            <!-- Dynamically populated via movies.js -->
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top: 1px solid var(--border-subtle); padding: 2.5rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 4rem;">
+        <div style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+            🎟️ Ticket <span class="text-primary-color">Tap</span>
+        </div>
+        <p>Movie Ticket Booking Web Application • Academic Project IEEE 830 Specification</p>
+        <p style="margin-top: 0.5rem;">Simulated payment sandbox & real-time seat lock protection</p>
+    </footer>
+
+    <!-- Shared Scripts -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/movies.js"></script>
+</body>
+</html>

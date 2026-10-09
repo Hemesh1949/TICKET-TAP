@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Ticket Tap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span></span>
+        </a>
+        <div id="nav-user-area" class="nav-links">
+            <a href="/register.html" class="btn btn-outline btn-sm">Create Account</a>
+        </div>
+    </header>
+
+    <!-- Main Auth Form Container -->
+    <main class="auth-page-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-icon-badge">🎬</div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your Ticket Tap account to book your favorite movies</p>
+            </div>
+
+            <!-- Quick Demo Credential Buttons -->
+            <div class="quick-fill-box">
+                <span class="quick-fill-label">⚡ One-Click Demo Credentials</span>
+                <div class="quick-fill-btns">
+                    <button type="button" class="quick-fill-btn" id="fill-customer-btn">👤 Customer Demo</button>
+                    <button type="button" class="quick-fill-btn" id="fill-admin-btn">👑 Admin Demo</button>
+                </div>
+            </div>
+
+            <!-- Alert Box for Errors/Notifications -->
+            <div id="alert-box" class="alert d-none"></div>
+
+            <form id="login-form" novalidate>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="name@example.com" 
+                            required 
+                            autocomplete="email"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="••••••••" 
+                            required 
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="toggle-password-btn" id="toggle-password" title="Show/Hide Password">👁️</button>
+                    </div>
+                </div>
+
+                <div class="auth-row">
+                    <label style="display:flex; align-items:center; gap:0.4rem; color: var(--text-secondary); cursor: pointer;">
+                        <input type="checkbox" id="remember-me" style="accent-color: var(--primary);">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="/forgot-password.html" class="auth-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
+                    <span id="btn-text">Sign In</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/register.html">Sign Up</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('login-form');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+
+            Auth.setupPasswordToggle('toggle-password', 'password');
+
+            // Check URL parameters for status notices
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectParam = urlParams.get('redirect');
+
+            if (urlParams.get('error') === 'admin_required') {
+                Auth.showAlert('alert-box', 'Admin authentication required to access that page.', 'danger');
+            } else if (urlParams.get('message') === 'logged_out') {
+                Auth.showAlert('alert-box', 'You have been successfully logged out.', 'info');
+            } else if (urlParams.get('registered') === '1') {
+                Auth.showAlert('alert-box', 'Account created successfully! Please sign in.', 'success');
+            } else if (urlParams.get('reset') === '1') {
+                Auth.showAlert('alert-box', 'Password reset successfully! Please sign in with your new password.', 'success');
+            }
+
+            // Quick Fill demo buttons
+            document.getElementById('fill-customer-btn').addEventListener('click', () => {
+                emailInput.value = 'john.doe@example.com';
+                passwordInput.value = 'User@123';
+                Auth.hideAlert('alert-box');
+            });
+
+            document.getElementById('fill-admin-btn').addEventListener('click', () => {
+                emailInput.value = 'admin@tickettap.com';
+                passwordInput.value = 'Admin@123';
+                Auth.hideAlert('alert-box');
+            });
+
+            // Form Submit
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                Auth.hideAlert('alert-box');
+
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!email || !password) {
+                    Auth.showAlert('alert-box', 'Please provide both email and password.');
+                    return;
+                }
+
+                // UI loading state
+                submitBtn.disabled = true;
+                btnText.textContent = 'Signing in...';
+
+                try {
+                    const res = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        Auth.showAlert('alert-box', data.error || 'Login failed.');
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Sign In';
+                        return;
+                    }
+
+                    Auth.showAlert('alert-box', `Welcome back, ${data.user.name}! Redirecting...`, 'success');
+
+                    setTimeout(() => {
+                        if (redirectParam) {
+                            window.location.href = decodeURIComponent(redirectParam);
+                        } else if (data.user.role === 'admin') {
+                            window.location.href = '/admin.html';
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }, 800);
+
+                } catch (err) {
+                    console.error('Login error:', err);
+                    Auth.showAlert('alert-box', 'Unable to connect to the server. Please try again.');
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Sign In';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

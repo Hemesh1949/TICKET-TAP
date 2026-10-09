@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your E-Ticket - Ticket Tap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/ticket.css">
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">← Home</a>
+        </div>
+        <div id="nav-user-area" class="nav-user"></div>
+    </header>
+
+    <main class="ticket-wrapper">
+        <div class="text-center">
+            <div class="ticket-status-badge">
+                <span>✅</span>
+                <span>Booking Confirmed & Verified</span>
+            </div>
+        </div>
+
+        <!-- E-Ticket Card (FR-16, FR-17) -->
+        <div class="eticket-card" id="ticket-card">
+            <div class="eticket-header">
+                <div class="eticket-brand">
+                    <span>🎟️ Ticket <span class="text-primary-color">Tap</span></span>
+                </div>
+                <div class="booking-ref-box">
+                    <div class="booking-ref-label">Booking Reference</div>
+                    <div class="booking-ref-val" id="ticket-booking-number">TT-••••-••••</div>
+                </div>
+            </div>
+
+            <div class="eticket-body">
+                <img src="" id="ticket-poster" alt="Movie Poster" class="ticket-poster-thumb">
+
+                <div class="ticket-main-info">
+                    <h1 class="ticket-movie-title" id="ticket-movie-title">Movie Title</h1>
+                    <div class="ticket-meta-pills">
+                        <span class="ticket-pill" id="ticket-lang">English</span>
+                        <span class="ticket-pill" id="ticket-cert">U/A</span>
+                        <span class="ticket-pill" id="ticket-duration">2h 30m</span>
+                    </div>
+
+                    <div class="ticket-details-grid">
+                        <div>
+                            <div class="td-label">Cinema & Screen</div>
+                            <div class="td-value" id="ticket-theatre">PVR ICON, Audi 1</div>
+                        </div>
+                        <div>
+                            <div class="td-label">Show Date & Time</div>
+                            <div class="td-value" id="ticket-datetime">08 Oct 2026, 10:00 AM</div>
+                        </div>
+                        <div>
+                            <div class="td-label">Booked Seats</div>
+                            <div class="td-value" id="ticket-seats" style="color: #60a5fa;">A1, A2</div>
+                        </div>
+                        <div>
+                            <div class="td-label">Customer Name</div>
+                            <div class="td-value" id="ticket-user-name">John Doe</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Perforation Notches -->
+            <div class="ticket-perforation">
+                <div class="perforation-line"></div>
+            </div>
+
+            <!-- Ticket Verification Stub with QR Code (FR-16) -->
+            <div class="eticket-stub">
+                <div class="qr-box">
+                    <img src="" id="ticket-qr-code" alt="QR Code" class="qr-img">
+                </div>
+                <div class="stub-info">
+                    <div style="font-weight: 700; color: #fff; margin-bottom: 0.25rem;">Scan QR at Cinema Gate</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);" id="ticket-payment-info">
+                        Paid via UPI (TXN: •••••••)
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-secondary);">Total Paid</div>
+                    <div class="stub-paid-amount" id="ticket-final-amount">₹0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons (FR-17) -->
+        <div class="ticket-actions">
+            <button type="button" id="print-ticket-btn" class="btn btn-primary">
+                🖨️ Download Ticket (PDF / Print)
+            </button>
+            <a href="/" class="btn btn-secondary">
+                🎬 Book Another Movie
+            </a>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId') || urlParams.get('id');
+
+            if (!bookingId) {
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/bookings/${bookingId}`);
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    alert('Booking not found.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                const b = data.booking;
+                const show = data.show;
+                const user = data.user;
+                const seats = data.seats;
+                const payment = data.payment;
+
+                document.title = `E-Ticket ${b.bookingNumber} - Ticket Tap`;
+
+                document.getElementById('ticket-booking-number').textContent = b.bookingNumber;
+                document.getElementById('ticket-poster').src = show.poster_url;
+                document.getElementById('ticket-movie-title').textContent = show.movie_title;
+                document.getElementById('ticket-lang').textContent = show.language;
+                document.getElementById('ticket-cert').textContent = show.certificate;
+                document.getElementById('ticket-duration').textContent = `${Math.floor(show.duration_mins/60)}h ${show.duration_mins%60}m`;
+                document.getElementById('ticket-theatre').textContent = `${show.theatre_name} (${show.screen_name})`;
+                document.getElementById('ticket-datetime').textContent = `${show.show_date} at ${show.show_time}`;
+                document.getElementById('ticket-seats').textContent = seats.map(s => s.label).join(', ');
+                document.getElementById('ticket-user-name').textContent = user.name;
+                document.getElementById('ticket-final-amount').textContent = `₹${b.finalAmount.toFixed(2)}`;
+
+                if (payment) {
+                    document.getElementById('ticket-payment-info').textContent = `Paid via ${payment.payment_method} • ${payment.transaction_id}`;
+                }
+
+                if (b.qrCode) {
+                    document.getElementById('ticket-qr-code').src = b.qrCode;
+                }
+
+            } catch (err) {
+                console.error('Error fetching ticket:', err);
+            }
+
+            // PDF / Print Handler (FR-17)
+            document.getElementById('print-ticket-btn').addEventListener('click', () => {
+                window.print();
+            });
+        });
+    </script>
+</body>
+</html>

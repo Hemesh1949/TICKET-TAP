@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulated Checkout & Payment - Ticket Tap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/seats.css">
+    <style>
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 2rem auto 4rem;
+            padding: 0 1.5rem;
+            align-items: flex-start;
+        }
+        .payment-methods-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+        }
+        .payment-tab-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0.75rem;
+        }
+        .pay-tab {
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .pay-tab.active {
+            background: rgba(229, 9, 20, 0.15);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+        .coupon-box {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1.25rem 0;
+        }
+        .coupon-applied-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .sim-actions-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .btn-fail {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+        .btn-fail:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ffffff;
+        }
+        @media (max-width: 860px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="javascript:history.back()" class="nav-link">← Back to Seat Selection</a>
+        </div>
+        <div id="nav-user-area" class="nav-user"></div>
+    </header>
+
+    <main class="checkout-grid">
+        <!-- Left: Payment Method Simulation (FR-14) -->
+        <section class="payment-methods-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <h2 style="font-family: var(--font-heading); font-size: 1.4rem;">💳 Payment Method</h2>
+                <span class="badge-item" style="color: #fbbf24; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4);">
+                    Simulated Sandbox
+                </span>
+            </div>
+
+            <!-- Payment Type Tabs -->
+            <div class="payment-tab-group">
+                <button type="button" class="pay-tab active" data-method="UPI">📱 UPI / QR</button>
+                <button type="button" class="pay-tab" data-method="Card">💳 Credit / Debit Card</button>
+                <button type="button" class="pay-tab" data-method="Net Banking">🏦 Net Banking</button>
+            </div>
+
+            <!-- Form: UPI -->
+            <div id="pay-form-upi" class="pay-content">
+                <div class="form-group">
+                    <label class="form-label">Virtual Payment Address (UPI ID)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input type="text" id="upi-id" class="form-input" placeholder="username@okhdfcbank" value="customer@okaxis">
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">
+                    ⚡ Instant payment simulation via Google Pay, PhonePe, Paytm, or BHIM.
+                </p>
+            </div>
+
+            <!-- Form: Card -->
+            <div id="pay-form-card" class="pay-content d-none">
+                <div class="form-group">
+                    <label class="form-label">Card Number</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">💳</span>
+                        <input type="text" class="form-input" placeholder="4532 •••• •••• 8921" value="4532 8888 9999 1234">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Expiry (MM/YY)</label>
+                        <input type="text" class="form-input no-icon" placeholder="12/28" value="12/28">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="form-input no-icon" placeholder="•••" value="888">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form: Net Banking -->
+            <div id="pay-form-netbanking" class="pay-content d-none">
+                <div class="form-group">
+                    <label class="form-label">Select Your Bank</label>
+                    <select class="form-input no-icon" style="cursor: pointer;">
+                        <option>State Bank of India (SBI)</option>
+                        <option>HDFC Bank</option>
+                        <option>ICICI Bank</option>
+                        <option>Axis Bank</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notification Alerts -->
+            <div id="alert-box" class="alert d-none" style="margin-top: 1.5rem;"></div>
+
+            <!-- Simulation Action Buttons (FR-14, FR-15) -->
+            <div class="sim-actions-box">
+                <button type="button" id="pay-success-btn" class="btn btn-primary btn-block" style="padding: 0.9rem;">
+                    <span id="pay-btn-text">🔒 Pay ₹0.00 (Simulate Success)</span>
+                </button>
+
+                <button type="button" id="pay-fail-btn" class="btn btn-fail btn-block" style="padding: 0.8rem;">
+                    ❌ Simulate Payment Failure
+                </button>
+            </div>
+
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted);">
+                Test both success and failure states safely in this sandbox.
+            </p>
+        </section>
+
+        <!-- Right: Booking Summary & Coupon (FR-12, FR-13) -->
+        <aside class="booking-summary-card">
+            <div class="summary-title">
+                <span>Order Summary</span>
+                <div id="lock-timer-box" class="lock-timer-box" style="padding: 0.2rem 0.6rem;">
+                    <span id="timer-digits" class="timer-digits" style="font-size: 1rem;">05:00</span>
+                </div>
+            </div>
+
+            <div id="summary-movie-info" style="margin-bottom: 1.25rem;">
+                <div style="font-size: 0.9rem; color: var(--text-muted);">Loading booking summary...</div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; font-weight: 600;">
+                Selected Seats:
+            </div>
+            <div class="selected-seats-chip-box" id="summary-seat-chips"></div>
+
+            <!-- Coupon Code Section (FR-13) -->
+            <div style="margin-top: 1.25rem;">
+                <label for="coupon-input" class="form-label">Apply Coupon Code</label>
+                <div class="coupon-box">
+                    <input type="text" id="coupon-input" class="form-input no-icon" placeholder="e.g. WELCOME50" style="text-transform: uppercase;">
+                    <button type="button" id="apply-coupon-btn" class="btn btn-secondary btn-sm" style="white-space: nowrap;">Apply</button>
+                </div>
+                <div id="coupon-badge" class="coupon-applied-badge d-none">
+                    <span id="coupon-badge-text">WELCOME50 Applied</span>
+                    <button type="button" id="remove-coupon-btn" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700;">✕</button>
+                </div>
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <button type="button" class="quick-fill-btn" onclick="document.getElementById('coupon-input').value='WELCOME50'">WELCOME50</button>
+                    <button type="button" class="quick-fill-btn" onclick="document.getElementById('coupon-input').value='TAP10'">TAP10</button>
+                    <button type="button" class="quick-fill-btn" onclick="document.getElementById('coupon-input').value='FLAT100'">FLAT100</button>
+                </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="price-row">
+                <span>Tickets Subtotal</span>
+                <span id="summary-base">₹0.00</span>
+            </div>
+            <div class="price-row" id="summary-discount-row" style="display: none; color: #34d399;">
+                <span>Coupon Discount</span>
+                <span id="summary-discount">-₹0.00</span>
+            </div>
+            <div class="price-row">
+                <span>Convenience Fee (18% GST)</span>
+                <span id="summary-tax">₹0.00</span>
+            </div>
+
+            <div class="price-total-row">
+                <span>Grand Total</span>
+                <span id="summary-total">₹0.00</span>
+            </div>
+        </aside>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const showId = urlParams.get('showId');
+            const seatIdsParam = urlParams.get('seatIds');
+
+            if (!showId || !seatIdsParam) {
+                window.location.href = '/';
+                return;
+            }
+
+            const seatIds = seatIdsParam.split(',').map(Number);
+            let state = {
+                showId: Number(showId),
+                seatIds,
+                appliedCoupon: null,
+                selectedMethod: 'UPI',
+                baseAmount: 0,
+                discountAmount: 0,
+                taxAmount: 0,
+                finalAmount: 0,
+                show: null
+            };
+
+            // DOM
+            const movieInfo = document.getElementById('summary-movie-info');
+            const seatChips = document.getElementById('summary-seat-chips');
+            const summaryBase = document.getElementById('summary-base');
+            const summaryDiscountRow = document.getElementById('summary-discount-row');
+            const summaryDiscount = document.getElementById('summary-discount');
+            const summaryTax = document.getElementById('summary-tax');
+            const summaryTotal = document.getElementById('summary-total');
+            const paySuccessBtn = document.getElementById('pay-success-btn');
+            const payBtnText = document.getElementById('pay-btn-text');
+            const payFailBtn = document.getElementById('pay-fail-btn');
+            const alertBox = document.getElementById('alert-box');
+            const couponInput = document.getElementById('coupon-input');
+            const applyCouponBtn = document.getElementById('apply-coupon-btn');
+            const couponBadge = document.getElementById('coupon-badge');
+            const couponBadgeText = document.getElementById('coupon-badge-text');
+            const removeCouponBtn = document.getElementById('remove-coupon-btn');
+
+            // 1. Fetch Booking Summary (FR-12)
+            try {
+                const res = await fetch(`/api/bookings/summary?showId=${showId}&seatIds=${seatIds.join(',')}`);
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    alert('Session expired or seats not available.');
+                    window.location.href = `/booking.html?showId=${showId}`;
+                    return;
+                }
+
+                state.show = data.show;
+                state.baseAmount = data.pricing.baseAmount;
+                state.taxAmount = data.pricing.taxAmount;
+                state.finalAmount = data.pricing.finalAmount;
+
+                // Render summary
+                movieInfo.innerHTML = `
+                    <div style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: #fff;">
+                        ${data.show.movie_title}
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                        🏛️ ${data.show.theatre_name} (${data.show.screen_name})<br>
+                        📅 ${data.show.show_date} at <strong>${data.show.show_time}</strong>
+                    </div>
+                `;
+
+                seatChips.innerHTML = data.seats.map(s => `
+                    <span class="seat-chip">
+                        <span>${s.label}</span>
+                        <span style="font-size: 0.7rem; color: #60a5fa;">(${s.category})</span>
+                    </span>
+                `).join('');
+
+                updatePriceDisplay();
+
+            } catch (err) {
+                console.error('Summary fetch error:', err);
+            }
+
+            // 2. Tab Switching
+            document.querySelectorAll('.pay-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    state.selectedMethod = tab.dataset.method;
+
+                    document.querySelectorAll('.pay-content').forEach(c => c.classList.add('d-none'));
+                    if (state.selectedMethod === 'UPI') document.getElementById('pay-form-upi').classList.remove('d-none');
+                    else if (state.selectedMethod === 'Card') document.getElementById('pay-form-card').classList.remove('d-none');
+                    else if (state.selectedMethod === 'Net Banking') document.getElementById('pay-form-netbanking').classList.remove('d-none');
+                });
+            });
+
+            // 3. Apply Coupon Code (FR-13)
+            applyCouponBtn.addEventListener('click', async () => {
+                const code = couponInput.value.trim();
+                if (!code) return;
+
+                hideAlert();
+                applyCouponBtn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/bookings/apply-coupon', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code, baseAmount: state.baseAmount })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.valid) {
+                        showAlert(data.error || 'Invalid coupon code.', 'danger');
+                        applyCouponBtn.disabled = false;
+                        return;
+                    }
+
+                    state.appliedCoupon = data.coupon.code;
+                    state.discountAmount = data.discountAmount;
+                    state.taxAmount = data.taxAmount;
+                    state.finalAmount = data.finalAmount;
+
+                    couponBadgeText.textContent = `✓ ${data.message}`;
+                    couponBadge.classList.remove('d-none');
+                    couponInput.value = '';
+                    updatePriceDisplay();
+                    showAlert(data.message, 'success');
+
+                } catch (err) {
+                    showAlert('Error applying coupon.', 'danger');
+                } finally {
+                    applyCouponBtn.disabled = false;
+                }
+            });
+
+            // Remove Coupon
+            removeCouponBtn.addEventListener('click', () => {
+                state.appliedCoupon = null;
+                state.discountAmount = 0;
+                const tax = Number((state.baseAmount * 0.18).toFixed(2));
+                state.taxAmount = tax;
+                state.finalAmount = Number((state.baseAmount + tax).toFixed(2));
+
+                couponBadge.classList.add('d-none');
+                updatePriceDisplay();
+                hideAlert();
+            });
+
+            function updatePriceDisplay() {
+                summaryBase.textContent = `₹${state.baseAmount.toFixed(2)}`;
+                if (state.discountAmount > 0) {
+                    summaryDiscountRow.style.display = 'flex';
+                    summaryDiscount.textContent = `-₹${state.discountAmount.toFixed(2)}`;
+                } else {
+                    summaryDiscountRow.style.display = 'none';
+                }
+                summaryTax.textContent = `₹${state.taxAmount.toFixed(2)}`;
+                summaryTotal.textContent = `₹${state.finalAmount.toFixed(2)}`;
+                payBtnText.textContent = `🔒 Pay ₹${state.finalAmount.toFixed(2)} (Simulate Success)`;
+            }
+
+            // 4. Process Payment Simulation (FR-14, FR-15)
+            paySuccessBtn.addEventListener('click', () => submitPayment('success'));
+            payFailBtn.addEventListener('click', () => submitPayment('failure'));
+
+            async function submitPayment(simulateResult) {
+                hideAlert();
+                paySuccessBtn.disabled = true;
+                payFailBtn.disabled = true;
+
+                if (simulateResult === 'success') {
+                    payBtnText.textContent = 'Processing Payment...';
+                }
+
+                try {
+                    const res = await fetch('/api/bookings/checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            showId: state.showId,
+                            seatIds: state.seatIds,
+                            couponCode: state.appliedCoupon,
+                            paymentMethod: state.selectedMethod,
+                            simulateResult
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) {
+                        // Payment failure or timeout (FR-15)
+                        showAlert(data.error || 'Payment failed. Held seats have been released.', 'danger');
+                        paySuccessBtn.disabled = false;
+                        payFailBtn.disabled = false;
+                        payBtnText.textContent = `🔒 Pay ₹${state.finalAmount.toFixed(2)} (Simulate Success)`;
+
+                        // Add a retry link to pick seats again
+                        const retryBtn = document.createElement('a');
+                        retryBtn.href = `/booking.html?showId=${state.showId}`;
+                        retryBtn.className = 'btn btn-secondary btn-block';
+                        retryBtn.style.marginTop = '0.75rem';
+                        retryBtn.textContent = '🔄 Re-Select Seats & Try Again';
+                        document.querySelector('.sim-actions-box').appendChild(retryBtn);
+                        return;
+                    }
+
+                    // Success! Redirect to E-Ticket (FR-16)
+                    showAlert('Payment verified! Generating e-ticket...', 'success');
+                    setTimeout(() => {
+                        window.location.href = `/ticket.html?bookingId=${data.bookingId}`;
+                    }, 800);
+
+                } catch (err) {
+                    console.error('Checkout failed:', err);
+                    showAlert('Network error during checkout.', 'danger');
+                    paySuccessBtn.disabled = false;
+                    payFailBtn.disabled = false;
+                }
+            }
+
+            function showAlert(msg, type = 'danger') {
+                alertBox.className = `alert alert-${type}`;
+                alertBox.innerHTML = `<span>${type === 'danger' ? '⚠️' : '✅'}</span><div>${escapeHtml(msg)}</div>`;
+                alertBox.classList.remove('d-none');
+            }
+
+            function hideAlert() {
+                alertBox.classList.add('d-none');
+                alertBox.innerHTML = '';
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        });
+    </script>
+</body>
+</html>

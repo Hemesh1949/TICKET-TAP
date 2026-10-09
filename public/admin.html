@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ticket Tap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <style>
+        .admin-wrapper {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+        .stat-val {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span> Admin</span>
+        </a>
+        <div id="nav-user-area" class="nav-links"></div>
+    </header>
+
+    <main class="admin-wrapper">
+        <div class="admin-header">
+            <div>
+                <h1 style="font-family: var(--font-heading); font-size: 2rem;">👑 Admin Dashboard</h1>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Administrative Access Verified (Role: Admin)</p>
+            </div>
+            <a href="/" class="btn btn-secondary btn-sm">← Back to Site</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val">12</div>
+                <div class="stat-label">Active Movies</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">3</div>
+                <div class="stat-label">Theatres (9 Screens)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">24</div>
+                <div class="stat-label">Scheduled Shows</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">4</div>
+                <div class="stat-label">Active Coupons</div>
+            </div>
+        </div>
+
+        <div class="auth-card" style="max-width: 100%; margin-top: 2rem;">
+            <h3 style="font-family: var(--font-heading); margin-bottom: 1rem;">🔒 Role-Based Access Control (FR-2)</h3>
+            <p style="color: var(--text-secondary); line-height: 1.6;">
+                This page is protected by <code>requireAdmin</code> middleware. Only users authenticated with the <code>admin</code> role can view this portal. If a regular customer or unauthenticated visitor attempts to access this page, access is denied.
+            </p>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Ticket Tap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span></span>
+        </a>
+        <div id="nav-user-area" class="nav-links">
+            <a href="/login.html" class="btn btn-outline btn-sm">Sign In</a>
+        </div>
+    </header>
+
+    <!-- Registration Card -->
+    <main class="auth-page-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-icon-badge">✨</div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join Ticket Tap to book tickets seamlessly and grab exclusive discounts</p>
+            </div>
+
+            <!-- Alert Message Box -->
+            <div id="alert-box" class="alert d-none"></div>
+
+            <form id="register-form" novalidate>
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="name" class="form-label">Full Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            class="form-input" 
+                            placeholder="e.g. Rahul Sharma" 
+                            required 
+                            autocomplete="name"
+                        >
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="name@example.com" 
+                            required 
+                            autocomplete="email"
+                        >
+                    </div>
+                </div>
+
+                <!-- Mobile -->
+                <div class="form-group">
+                    <label for="mobile" class="form-label">Mobile Number</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input 
+                            type="tel" 
+                            id="mobile" 
+                            name="mobile" 
+                            class="form-input" 
+                            placeholder="10-digit mobile number" 
+                            maxlength="10" 
+                            required 
+                            autocomplete="tel"
+                        >
+                    </div>
+                    <span class="form-hint">Enter a valid 10-digit Indian mobile number</span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="At least 6 characters" 
+                            required 
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="toggle-password-btn" id="toggle-password" title="Show/Hide Password">👁️</button>
+                    </div>
+                    <!-- Password Strength Bar -->
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strength-bar"></div>
+                    </div>
+                    <div class="strength-text" id="strength-text">Password strength</div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            id="confirm-password" 
+                            name="confirm-password" 
+                            class="form-input" 
+                            placeholder="Re-enter password" 
+                            required 
+                            autocomplete="new-password"
+                        >
+                    </div>
+                    <div id="match-feedback" class="form-hint" style="color: var(--text-muted);">Passwords must match</div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">
+                    <span id="btn-text">Create Account</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="/login.html">Sign In</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('register-form');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const mobileInput = document.getElementById('mobile');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirm-password');
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
+            const matchFeedback = document.getElementById('match-feedback');
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+
+            Auth.setupPasswordToggle('toggle-password', 'password');
+
+            // Live password strength calculation
+            passwordInput.addEventListener('input', () => {
+                const val = passwordInput.value;
+                let strength = 0;
+                if (val.length >= 6) strength += 25;
+                if (val.length >= 10) strength += 25;
+                if (/[A-Z]/.test(val)) strength += 25;
+                if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) strength += 25;
+
+                strengthBar.style.width = strength + '%';
+
+                if (strength <= 25) {
+                    strengthBar.style.background = '#ef4444';
+                    strengthText.textContent = 'Weak (min 6 characters)';
+                    strengthText.style.color = '#ef4444';
+                } else if (strength <= 75) {
+                    strengthBar.style.background = '#f59e0b';
+                    strengthText.textContent = 'Medium';
+                    strengthText.style.color = '#f59e0b';
+                } else {
+                    strengthBar.style.background = '#10b981';
+                    strengthText.textContent = 'Strong';
+                    strengthText.style.color = '#10b981';
+                }
+
+                checkPasswordMatch();
+            });
+
+            // Live password match verification
+            function checkPasswordMatch() {
+                if (!confirmInput.value) {
+                    matchFeedback.textContent = 'Passwords must match';
+                    matchFeedback.style.color = 'var(--text-muted)';
+                    return;
+                }
+                if (passwordInput.value === confirmInput.value) {
+                    matchFeedback.textContent = '✓ Passwords match';
+                    matchFeedback.style.color = '#10b981';
+                } else {
+                    matchFeedback.textContent = '✗ Passwords do not match';
+                    matchFeedback.style.color = '#ef4444';
+                }
+            }
+
+            confirmInput.addEventListener('input', checkPasswordMatch);
+
+            // Form Submit handler
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                Auth.hideAlert('alert-box');
+
+                const name = nameInput.value.trim();
+                const email = emailInput.value.trim();
+                const mobile = mobileInput.value.trim();
+                const password = passwordInput.value;
+                const confirmPassword = confirmInput.value;
+
+                // Client-side validations
+                if (!name || !email || !mobile || !password) {
+                    Auth.showAlert('alert-box', 'All fields are required.');
+                    return;
+                }
+
+                if (name.length < 2) {
+                    Auth.showAlert('alert-box', 'Please enter your full name (minimum 2 characters).');
+                    nameInput.focus();
+                    return;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    Auth.showAlert('alert-box', 'Please enter a valid email address.');
+                    emailInput.focus();
+                    return;
+                }
+
+                const mobileRegex = /^[0-9]{10}$/;
+                if (!mobileRegex.test(mobile)) {
+                    Auth.showAlert('alert-box', 'Please enter a valid 10-digit mobile number.');
+                    mobileInput.focus();
+                    return;
+                }
+
+                if (password.length < 6) {
+                    Auth.showAlert('alert-box', 'Password must be at least 6 characters long.');
+                    passwordInput.focus();
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    Auth.showAlert('alert-box', 'Passwords do not match. Please verify.');
+                    confirmInput.focus();
+                    return;
+                }
+
+                // Submit request
+                submitBtn.disabled = true;
+                btnText.textContent = 'Creating account...';
+
+                try {
+                    const res = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, mobile, password })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        Auth.showAlert('alert-box', data.error || 'Registration failed.');
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Create Account';
+                        return;
+                    }
+
+                    Auth.showAlert('alert-box', 'Account created successfully! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+
+                } catch (err) {
+                    console.error('Registration error:', err);
+                    Auth.showAlert('alert-box', 'Could not connect to server. Please try again.');
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Create Account';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

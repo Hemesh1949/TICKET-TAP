@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats - Ticket Tap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/seats.css">
+</head>
+<body>
+    <div class="bg-ambient"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">🎟️</span>
+            <span>Ticket <span class="brand-tap">Tap</span></span>
+        </a>
+
+        <div class="nav-links">
+            <a href="javascript:history.back()" class="nav-link">← Change Show Timing</a>
+        </div>
+
+        <div id="nav-user-area" class="nav-user">
+            <a href="/login.html" class="nav-link">Sign In</a>
+            <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
+        </div>
+    </header>
+
+    <main class="booking-page-container">
+        <!-- Show Meta Header Card -->
+        <div class="booking-header-card">
+            <div id="movie-meta-box">
+                <div style="color: var(--text-secondary);">Loading screening details...</div>
+            </div>
+
+            <!-- 5-Minute Seat Hold Countdown Timer (FR-9) -->
+            <div id="lock-timer-box" class="lock-timer-box d-none">
+                <span style="font-size: 1.3rem;">⏳</span>
+                <div>
+                    <div class="timer-digits" id="timer-digits">05:00</div>
+                    <div class="timer-label">Seat Hold Time Left</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Banner -->
+        <div id="alert-box" class="alert d-none"></div>
+
+        <!-- Main Layout: Seat Map + Sidebar -->
+        <div class="booking-content-grid">
+            <!-- Seat Map Area -->
+            <section class="seat-map-wrapper">
+                <!-- Cinema Screen Graphic -->
+                <div class="cinema-screen-container">
+                    <div class="cinema-screen-curve"></div>
+                    <div class="screen-text">🎬 SCREEN THIS WAY 🎬</div>
+                </div>
+
+                <!-- Seat Color Legend (FR-8) -->
+                <div class="seat-legend">
+                    <div class="legend-item">
+                        <div class="legend-swatch legend-avail"></div>
+                        <span>Available (Green)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch legend-selected"></div>
+                        <span>Selected (Blue)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-swatch legend-booked"></div>
+                        <span>Booked / Locked (Grey)</span>
+                    </div>
+                </div>
+
+                <!-- Seating Grid Grouped by Category (FR-8, FR-11) -->
+                <div id="seat-map-container">
+                    <div style="padding: 4rem 1rem; color: var(--text-secondary);">Loading seating layout...</div>
+                </div>
+            </section>
+
+            <!-- Sticky Booking Summary Sidebar -->
+            <aside class="booking-summary-card">
+                <div class="summary-title">
+                    <span>Booking Summary</span>
+                    <span class="selected-badge-count" id="selected-count-badge">0 / 6</span>
+                </div>
+
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">
+                    Selected Seats (Max 6):
+                </div>
+
+                <div class="selected-seats-chip-box" id="selected-seats-chips">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">No seats chosen</span>
+                </div>
+
+                <!-- Pricing Breakdown -->
+                <div class="price-row">
+                    <span>Tickets Subtotal</span>
+                    <span id="base-amount-label">₹0.00</span>
+                </div>
+                <div class="price-row">
+                    <span>Convenience Fee (18% GST)</span>
+                    <span id="tax-amount-label">₹0.00</span>
+                </div>
+
+                <div class="price-total-row">
+                    <span>Estimated Total</span>
+                    <span id="total-amount-label">₹0.00</span>
+                </div>
+
+                <!-- Lock & Proceed CTA (FR-9, FR-10) -->
+                <button type="button" id="proceed-btn" class="btn btn-primary btn-block" style="margin-top: 1.5rem;" disabled>
+                    Select Seats to Proceed
+                </button>
+
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted);">
+                    🔒 5-Minute atomic lock holds your seats securely while you pay.
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top: 1px solid var(--border-subtle); padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 4rem;">
+        <div style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem;">
+            🎟️ Ticket <span class="text-primary-color">Tap</span>
+        </div>
+        <p>Movie Ticket Booking • Concurrency-Protected Seating Engine</p>
+    </footer>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/seat-selection.js"></script>
+</body>
+</html>
